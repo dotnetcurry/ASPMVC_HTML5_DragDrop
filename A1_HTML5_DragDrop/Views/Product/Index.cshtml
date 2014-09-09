@@ -1,0 +1,95 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+<style type="text/css">
+    table, td {
+        background-color:azure;
+     border:double;
+    }
+    #dvright,#dvleft {
+        background-color:azure;
+       height:200px;
+       width:300px;
+    }
+</style>
+<script src="~/Scripts/jquery-2.1.1.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        loadProducts();
+
+        //Function to set events for Drag-Drop
+        function setEvents() {
+            var lstProducts = $('li');
+            //Set Drag on Each 'li' in the list 
+                $.each(lstProducts, function (idx, val) {
+                    $('li').on('dragstart', function (evt) {
+                        evt.originalEvent.dataTransfer.setData("Text", evt.target.textContent);
+                        evt.target.draggable = false;
+                    });
+                });
+              
+            //Set the Drop on the <div>
+                $("#dvright").on('drop', function (evt) {
+                    evt.preventDefault();
+                    var data = evt.originalEvent.dataTransfer.getData("Text");
+                    var lst = $("#lstselectedproducts");
+                    var li = "<li>"+data+"</li>";
+                    li.textContent = data;
+                    lst.append(li);
+                });
+
+            //The dragover
+                $("#dvright").on('dragover', function (evt) {
+                    evt.preventDefault();
+                });
+        }
+
+        ///Function to load products using call to WEB API
+        function loadProducts() {
+            var items="";
+            $.ajax({
+                url: "/Products",
+                type: "GET"
+            }).done(function (resp) {
+                $.each(resp, function (idx, val) {
+                    items += "<li draggable='true'>" + val.ProductName + "</li>";
+                });
+                $("#lstproducts").html(items);
+                setEvents();
+            }).error(function (err) {
+                alert("Error! " + err.status);
+            });
+        }
+    });
+</script>
+
+<table>
+    <tr>
+        <td>
+            <h1>Product List</h1>
+        </td>
+        <td>
+            <h1>Selected Products</h1>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div id="dvleft">
+                <ul id="lstproducts">
+                </ul>
+            </div> 
+        </td>
+        <td>
+            <div id="dvright">
+                <ul id="lstselectedproducts"></ul>
+            </div>
+        </td>
+    </tr>
+</table>
+ 
+ 
